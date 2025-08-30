@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Science Quiz</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .page {
+      display: none;
+      height: 100vh;
+      width: 100%;
+      text-align: center;
+      padding: 20px;
+    }
+    #signupPage {
+      background: pink;
+      color: blue;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/3b/Open_book_icon.png'), 
+                        url('https://upload.wikimedia.org/wikipedia/commons/4/4f/Pen_icon.png');
+      background-repeat: no-repeat, no-repeat;
+      background-position: left bottom, right bottom;
+      background-size: 150px, 100px;
+    }
+    #quizPage {
+      background: #f0f0f0;
+      color: black;
+    }
+    #iqPage {
+      background: white;
+      color: black;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      width: 200px;
+    }
+    .redBtn {
+      background: red;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    #feedback {
+      font-weight: bold;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Signup Page -->
+  <div id="signupPage" class="page">
+    <h1>Sign Up</h1>
+    <input type="text" id="username" placeholder="Enter Username">
+    <input type="password" id="password" placeholder="Enter Password">
+    <button onclick="startQuiz()">Sign Up</button>
+  </div>
+
+  <!-- Quiz Page -->
+  <div id="quizPage" class="page">
+    <h1>Science Quiz</h1>
+    <h2 id="levelTitle">Level 100</h2>
+    <p id="question"></p>
+    <div id="options"></div>
+    <p id="feedback"></p>
+    <button onclick="nextQuestion()">Next</button>
+    <p id="score">Score: 0</p>
+  </div>
+
+  <!-- IQ Page -->
+  <div id="iqPage" class="page">
+    <h1>IQ Calculation</h1>
+    <button class="redBtn" onclick="calculateIQ()">Calculate IQ</button>
+    <p id="iqResult"></p>
+  </div>
+
+  <script>
+    let currentPage = "signupPage";
+    document.getElementById(currentPage).style.display = "block";
+
+    function showPage(page) {
+      document.getElementById(currentPage).style.display = "none";
+      document.getElementById(page).style.display = "block";
+      currentPage = page;
+    }
+
+    const levels = {
+      100: [
+        {q:"What planet is red?", opts:["Mars","Earth","Venus","Jupiter","Saturn"], ans:"A"},
+        {q:"Symbol of water?", opts:["O2","CO2","H2O","HO","NaCl"], ans:"C"},
+        {q:"Gas plants absorb?", opts:["Oxygen","Carbon Dioxide","Nitrogen","Helium","Argon"], ans:"B"},
+        {q:"Bones in adult body?", opts:["201","210","199","206","202"], ans:"D"},
+        {q:"Largest organ?", opts:["Liver","Brain","Skin","Heart","Kidney"], ans:"C"}
+      ],
+      200: [
+        {q:"Earth’s atmosphere % nitrogen?", opts:["21%","50%","78%","10%","5%"], ans:"C"},
+        {q:"Speed of light?", opts:["3x10^8 m/s","1x10^6 m/s","3x10^6 m/s","1x10^8 m/s","5x10^8 m/s"], ans:"A"},
+        {q:"pH of neutral water?", opts:["0","7","14","5","9"], ans:"B"},
+        {q:"Center of atom?", opts:["Neutron","Proton","Nucleus","Electron","Shell"], ans:"C"},
+        {q:"Human blood type universal donor?", opts:["O-","AB+","A+","B+","O+"], ans:"A"}
+      ],
+      300: [
+        {q:"Einstein’s mass-energy equation?", opts:["E=mc^2","F=ma","PV=nRT","ΔE=hv","E=IR"], ans:"A"},
+        {q:"Avogadro’s number?", opts:["6.022x10^23","3.14","9.8","1.6x10^-19","2.71"], ans:"A"},
+        {q:"Gas law at constant temp?", opts:["Boyle’s","Charles’","Avogadro’s","Dalton’s","Newton’s"], ans:"A"},
+        {q:"DNA structure discovered by?", opts:["Newton","Darwin","Watson & Crick","Einstein","Curie"], ans:"C"},
+        {q:"Hardest substance?", opts:["Graphite","Gold","Iron","Diamond","Quartz"], ans:"D"}
+      ]
+    };
+
+    let level = 100;
+    let current = 0;
+    let score = 0;
+
+    function startQuiz(){
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if(user && pass){
+        showPage("quizPage");
+        loadQuestion();
+      } else {
+        alert("Enter username and password!");
+      }
+    }
+
+    function loadQuestion(){
+      const questionSet = levels[level];
+      if(current >= questionSet.length){
+        if(level === 100){ level=200; current=0; document.getElementById("levelTitle").innerText="Level 200"; loadQuestion(); return;}
+        if(level === 200){ level=300; current=0; document.getElementById("levelTitle").innerText="Level 300"; loadQuestion(); return;}
+        if(level === 300){ showPage("iqPage"); return;}
+      }
+      const qObj = questionSet[current];
+      document.getElementById("question").innerText = qObj.q;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      document.getElementById("feedback").innerText = "";
+      qObj.opts.forEach((opt,i) => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.style.display="block";
+        btn.style.margin="5px auto";
+        btn.onclick = () => checkAnswer(String.fromCharCode(65+i), qObj.ans);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(ans, correct){
+      if(ans === correct){
+        score++;
+        document.getElementById("score").innerText = "Score: " + score;
+        document.getElementById("feedback").innerText = "✅ Correct!";
+        document.getElementById("feedback").style.color = "green";
+      } else {
+        document.getElementById("feedback").innerText = "❌ Wrong! Correct answer: " + correct;
+        document.getElementById("feedback").style.color = "red";
+      }
+    }
+
+    function nextQuestion(){
+      current++;
+      loadQuestion();
+    }
+
+    function calculateIQ(){
+      let iq = 80 + score*2;
+      document.getElementById("iqResult").innerText = "Your IQ: " + iq;
+    }
+  </script>
+</body>
+</html>
